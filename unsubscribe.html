@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abmelden – Matchpoint News</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f4f9f4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 3rem 2rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+    h1 { font-size: 1.8rem; font-weight: 900; color: #1a472a; margin-bottom: 0.75rem; }
+    p { color: #5a6a5a; line-height: 1.6; margin-bottom: 1.5rem; }
+    a {
+      display: inline-block;
+      padding: 0.8rem 1.75rem;
+      background: #1a472a;
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="icon" id="icon">⏳</span>
+    <h1 id="title">Wird bearbeitet...</h1>
+    <p id="message">Bitte warte einen Moment.</p>
+    <div id="link-wrap"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get('email');
+
+    async function unsubscribe() {
+      if (!email) {
+        show('❌', 'Ungültiger Link', 'Dieser Abmelde-Link ist ungültig.');
+        return;
+      }
+      try {
+        const res = await fetch(`/.netlify/functions/unsubscribe?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+        if (res.ok) {
+          show('👋', 'Du wurdest abgemeldet.', `Die E-Mail-Adresse ${email} wurde aus unserem Newsletter entfernt. Schade, dass du gehst!`);
+          document.getElementById('link-wrap').innerHTML = '<a href="/">Zur Startseite</a>';
+        } else {
+          show('❌', 'Fehler', data.error || 'Bitte versuche es erneut.');
+        }
+      } catch {
+        show('❌', 'Netzwerkfehler', 'Bitte versuche es später nochmal.');
+      }
+    }
+
+    function show(icon, title, message) {
+      document.getElementById('icon').textContent = icon;
+      document.getElementById('title').textContent = title;
+      document.getElementById('message').textContent = message;
+    }
+
+    unsubscribe();
+  </script>
+</body>
+</html>
