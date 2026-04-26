@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matchpoint News – Dein täglicher Tennis-Newsletter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:  #1a472a;
+      --green2: #2d6a4f;
+      --yellow: #d4f500;
+      --light:  #f4f9f4;
+      --white:  #ffffff;
+      --text:   #1a1a1a;
+      --muted:  #5a6a5a;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      background: var(--green);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    nav .logo {
+      color: var(--yellow);
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: -0.5px;
+    }
+    nav .logo span { color: var(--white); }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, var(--green) 0%, var(--green2) 100%);
+      color: var(--white);
+      padding: 5rem 2rem 4rem;
+      text-align: center;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: var(--yellow);
+      color: var(--green);
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem;
+      border-radius: 100px;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.15;
+      max-width: 700px;
+      margin: 0 auto 1.25rem;
+    }
+    .hero h1 em {
+      color: var(--yellow);
+      font-style: normal;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.85);
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+    }
+
+    /* FORM */
+    .form-wrap {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 460px;
+      margin: 0 auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    .form-wrap h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: var(--text);
+      text-align: center;
+    }
+    .form-wrap input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 2px solid #e0e8e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-wrap input:focus { border-color: var(--green2); }
+    .form-wrap button {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--green);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      font-family: inherit;
+    }
+    .form-wrap button:hover { background: var(--green2); }
+    .form-wrap button:active { transform: scale(0.98); }
+    .form-wrap .fine {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 0.75rem;
+    }
+    #form-message {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    #form-message.success { color: var(--green2); }
+    #form-message.error   { color: #c0392b; }
+
+    /* FEATURES */
+    .features {
+      background: var(--light);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    .features h2 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+    }
+    .features .sub {
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1.75rem 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      text-align: left;
+    }
+    .card .icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    .card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: var(--green);
+    }
+    .card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* EXAMPLE */
+    .example {
+      padding: 4rem 2rem;
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .example h2 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+    }
+    .example .sub {
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+    .preview {
+      background: var(--light);
+      border: 2px solid #ddeedd;
+      border-radius: 14px;
+      padding: 1.75rem;
+      text-align: left;
+      font-size: 0.9rem;
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .preview strong { color: var(--green); }
+
+    /* CTA BOTTOM */
+    .cta-bottom {
+      background: var(--green);
+      color: var(--white);
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+    .cta-bottom h2 {
+      font-size: 2rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+    }
+    .cta-bottom p {
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 2rem;
+    }
+    .cta-bottom .form-wrap { margin: 0 auto; }
+
+    /* FOOTER */
+    footer {
+      background: #111;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 1.5rem 2rem;
+      font-size: 0.8rem;
+    }
+    footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
+    footer a:hover { color: var(--white); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">🎾 Matchpoint<span> News</span></div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="badge">Kostenlos &amp; täglich</div>
+    <h1>Tennis. Täglich. <em>Auf den Punkt.</em></h1>
+    <p>Ergebnisse, Rankings, Turnier-Highlights und Hintergrundgeschichten – jeden Morgen frisch in deinem Posteingang.</p>
+
+    <div class="form-wrap">
+      <h2>Jetzt kostenlos anmelden</h2>
+      <form id="subscribe-form">
+        <input type="text" name="name" placeholder="Dein Name" required />
+        <input type="email" name="email" placeholder="Deine E-Mail-Adresse" required />
+        <button type="submit">Anmelden – kostenlos &amp; jederzeit kündbar</button>
+        <p class="fine">Kein Spam. Jederzeit abmeldbar.</p>
+      </form>
+      <div id="form-message"></div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <h2>Was dich jeden Morgen erwartet</h2>
+    <p class="sub">Alles was du als Tennisfan wissen musst – in 5 Minuten gelesen.</p>
+    <div class="cards">
+      <div class="card">
+        <span class="icon">🏆</span>
+        <h3>Gestrige Ergebnisse</h3>
+        <p>Alle wichtigen Scores von ATP und WTA – mit Kontext zu Überraschungen, Comebacks und Upsets.</p>
+      </div>
+      <div class="card">
+        <span class="icon">📅</span>
+        <h3>Heutige Matches</h3>
+        <p>Welche Spiele laufen heute? Was steht auf dem Spiel? Worauf du achten solltest.</p>
+      </div>
+      <div class="card">
+        <span class="icon">📊</span>
+        <h3>Ranglisten & Punkte</h3>
+        <p>Wer steigt auf, wer fällt? Aktuelle Top 10 von ATP und WTA mit Bewegungen und Hintergründen.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🎙️</span>
+        <h3>Turnier-Spotlight</h3>
+        <p>Geschichte, Untergrund, Titelverteidiger – du verstehst nicht nur was passiert, sondern auch warum es wichtig ist.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAMPLE -->
+  <section class="example">
+    <h2>So klingt Matchpoint News</h2>
+    <p class="sub">Ein Auszug aus dem Newsletter vom 26. April 2026</p>
+    <div class="preview">
+      <p><strong>Madrid brennt – und wie!</strong> Das Mutua Madrid Open liefert täglich neue Geschichten. Gestern sorgte Iga Świątek für den Schockmoment der Woche: Die viermalige Roland-Garros-Siegerin musste ihr Match gegen Ann Li verletzungsbedingt aufgeben – ein Rückschlag mit Folgen für die French-Open-Vorbereitung.</p>
+      <br/>
+      <p>Auf der ATP-Seite marschieren die Favoriten: <strong>Zverev</strong> (Titelverteidiger 2021 &amp; 2024) zieht trotz verlorenem zweiten Satz durch, <strong>Casper Ruud</strong> – dreimal im Roland-Garros-Finale – macht kurzen Prozess mit einem 6-0 6-1 Doppel-Bagel. Und <strong>Jannik Sinner</strong> steht heute auf dem Platz...</p>
+    </div>
+  </section>
+
+  <!-- CTA BOTTOM -->
+  <section class="cta-bottom">
+    <h2>Bereit für deinen Matchpoint?</h2>
+    <p>Täglich. Kostenlos. Kündbar wann immer du willst.</p>
+    <div class="form-wrap">
+      <h2>Jetzt anmelden</h2>
+      <form id="subscribe-form-2">
+        <input type="text" name="name" placeholder="Dein Name" required />
+        <input type="email" name="email" placeholder="Deine E-Mail-Adresse" required />
+        <button type="submit">Jetzt kostenlos anmelden</button>
+        <p class="fine" style="color:#aaa;">Kein Spam. Jederzeit abmeldbar.</p>
+      </form>
+      <div id="form-message-2"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 Matchpoint News · <a href="mailto:newsletter@matchpoint-news.cloud">newsletter@matchpoint-news.cloud</a></p>
+  </footer>
+
+  <script>
+    async function handleSubmit(formId, messageId) {
+      const form = document.getElementById(formId);
+      const msg = document.getElementById(messageId);
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = form.name.value.trim();
+        const email = form.email.value.trim();
+        const btn = form.querySelector('button');
+        btn.textContent = 'Wird angemeldet...';
+        btn.disabled = true;
+        try {
+          const res = await fetch('/.netlify/functions/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            form.style.display = 'none';
+            msg.className = 'success';
+            msg.textContent = '🎾 Willkommen an Bord! Morgen früh liegt dein erster Newsletter im Posteingang.';
+          } else {
+            msg.className = 'error';
+            msg.textContent = data.error || 'Etwas ist schiefgelaufen. Bitte versuche es nochmal.';
+            btn.textContent = 'Anmelden';
+            btn.disabled = false;
+          }
+        } catch {
+          msg.className = 'error';
+          msg.textContent = 'Netzwerkfehler. Bitte versuche es später nochmal.';
+          btn.textContent = 'Anmelden';
+          btn.disabled = false;
+        }
+      });
+    }
+    handleSubmit('subscribe-form', 'form-message');
+    handleSubmit('subscribe-form-2', 'form-message-2');
+  </script>
+</body>
+</html>
