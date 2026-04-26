@@ -47,6 +47,8 @@ async function sendConfirmationEmail(email, name, token) {
       `,
     }),
   });
+  const responseText = await res.text();
+  console.log('Resend response:', res.status, responseText);
   return res.ok;
 }
 
