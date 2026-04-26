@@ -1,5 +1,6 @@
 const admin = require('firebase-admin');
 const crypto = require('crypto');
+const { Resend } = require('resend');
 
 if (!admin.apps.length) {
   const serviceAccount = JSON.parse(
@@ -23,33 +24,29 @@ async function verifyCaptcha(token) {
 }
 
 async function sendConfirmationEmail(email, name, token) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const confirmUrl = `https://matchpoint-news.netlify.app/confirm.html?token=${token}`;
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-    },
-    body: JSON.stringify({
-      from: 'Matchpoint News <newsletter@matchpoint-news.cloud>',
-      to: email,
-      subject: '🎾 Bitte bestätige deine Anmeldung – Matchpoint News',
-      html: `
-        <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:2rem;">
-          <h2 style="color:#1a472a;">Fast geschafft, ${name || 'Tennis-Fan'}!</h2>
-          <p>Du hast dich für den <strong>Matchpoint News</strong> Newsletter angemeldet.</p>
-          <p>Klicke auf den Button um deine Anmeldung zu bestätigen:</p>
-          <a href="${confirmUrl}" style="display:inline-block;margin:1.5rem 0;padding:0.9rem 2rem;background:#1a472a;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;">
-            Anmeldung bestätigen
-          </a>
-          <p style="color:#888;font-size:0.85rem;">Der Link ist 24 Stunden gültig.<br/>Falls du dich nicht angemeldet hast, kannst du diese E-Mail ignorieren.</p>
-        </div>
-      `,
-    }),
+  const { data, error } = await resend.emails.send({
+    from: 'Matchpoint News <newsletter@matchpoint-news.cloud>',
+    to: email,
+    subject: '🎾 Bitte bestätige deine Anmeldung – Matchpoint News',
+    html: `
+      <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:2rem;">
+        <h2 style="color:#1a472a;">Fast geschafft, ${name || 'Tennis-Fan'}!</h2>
+        <p>Du hast dich für den <strong>Matchpoint News</strong> Newsletter angemeldet.</p>
+        <p>Klicke auf den Button um deine Anmeldung zu bestätigen:</p>
+        <a href="${confirmUrl}" style="display:inline-block;margin:1.5rem 0;padding:0.9rem 2rem;background:#1a472a;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;">
+          Anmeldung bestätigen
+        </a>
+        <p style="color:#888;font-size:0.85rem;">Der Link ist 24 Stunden gültig.<br/>Falls du dich nicht angemeldet hast, kannst du diese E-Mail ignorieren.</p>
+      </div>
+    `,
   });
-  const responseText = await res.text();
-  console.log('Resend response:', res.status, responseText);
-  return res.ok;
+  if (error) {
+    console.error('Resend error:', JSON.stringify(error));
+    throw new Error(`Resend failed: ${error.message}`);
+  }
+  console.log('Resend success, email id:', data?.id);
 }
 
 exports.handler = async (event) => {
