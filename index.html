@@ -6,6 +6,7 @@
   <title>Matchpoint News – Dein täglicher Tennis-Newsletter</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -259,6 +260,8 @@
       <form id="subscribe-form">
         <input type="text" name="name" placeholder="Dein Name" required />
         <input type="email" name="email" placeholder="Deine E-Mail-Adresse" required />
+        <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
+        <div class="h-captcha" data-sitekey="4ccef0e0-e124-4b2c-a60e-d3f2b55a1d28" style="margin-bottom:0.75rem"></div>
         <button type="submit">Anmelden – kostenlos &amp; jederzeit kündbar</button>
         <p class="fine">Kein Spam. Jederzeit abmeldbar.</p>
       </form>
@@ -314,6 +317,8 @@
       <form id="subscribe-form-2">
         <input type="text" name="name" placeholder="Dein Name" required />
         <input type="email" name="email" placeholder="Deine E-Mail-Adresse" required />
+        <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
+        <div class="h-captcha" data-sitekey="4ccef0e0-e124-4b2c-a60e-d3f2b55a1d28" style="margin-bottom:0.75rem"></div>
         <button type="submit">Jetzt kostenlos anmelden</button>
         <p class="fine" style="color:#aaa;">Kein Spam. Jederzeit abmeldbar.</p>
       </form>
@@ -334,14 +339,22 @@
         e.preventDefault();
         const name = form.name.value.trim();
         const email = form.email.value.trim();
+        const captchaToken = form.querySelector('[name="h-captcha-response"]')?.value || '';
         const btn = form.querySelector('button');
+
+        if (!captchaToken) {
+          msg.className = 'error';
+          msg.textContent = 'Bitte bestätige, dass du kein Roboter bist.';
+          return;
+        }
+
         btn.textContent = 'Wird angemeldet...';
         btn.disabled = true;
         try {
           const res = await fetch('/.netlify/functions/subscribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email }),
+            body: JSON.stringify({ name, email, captchaToken }),
           });
           const data = await res.json();
           if (res.ok) {
@@ -353,12 +366,14 @@
             msg.textContent = data.error || 'Etwas ist schiefgelaufen. Bitte versuche es nochmal.';
             btn.textContent = 'Anmelden';
             btn.disabled = false;
+            if (window.hcaptcha) window.hcaptcha.reset();
           }
         } catch {
           msg.className = 'error';
           msg.textContent = 'Netzwerkfehler. Bitte versuche es später nochmal.';
           btn.textContent = 'Anmelden';
           btn.disabled = false;
+          if (window.hcaptcha) window.hcaptcha.reset();
         }
       });
     }
