@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const crypto = require('crypto');
 
 if (!admin.apps.length) {
   const serviceAccount = JSON.parse(
@@ -21,6 +22,34 @@ async function verifyCaptcha(token) {
   return data.success === true;
 }
 
+async function sendConfirmationEmail(email, name, token) {
+  const confirmUrl = `https://matchpoint-news.netlify.app/confirm.html?token=${token}`;
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({
+      from: 'Matchpoint News <newsletter@matchpoint-news.cloud>',
+      to: email,
+      subject: '🎾 Bitte bestätige deine Anmeldung – Matchpoint News',
+      html: `
+        <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:2rem;">
+          <h2 style="color:#1a472a;">Fast geschafft, ${name || 'Tennis-Fan'}!</h2>
+          <p>Du hast dich für den <strong>Matchpoint News</strong> Newsletter angemeldet.</p>
+          <p>Klicke auf den Button um deine Anmeldung zu bestätigen:</p>
+          <a href="${confirmUrl}" style="display:inline-block;margin:1.5rem 0;padding:0.9rem 2rem;background:#1a472a;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;">
+            Anmeldung bestätigen
+          </a>
+          <p style="color:#888;font-size:0.85rem;">Der Link ist 24 Stunden gültig.<br/>Falls du dich nicht angemeldet hast, kannst du diese E-Mail ignorieren.</p>
+        </div>
+      `,
+    }),
+  });
+  return res.ok;
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
@@ -35,12 +64,12 @@ exports.handler = async (event) => {
 
   const { name, email, website, captchaToken } = body;
 
-  // Honeypot: Bots füllen dieses Feld aus, Menschen nicht
+  // Honeypot
   if (website) {
     return { statusCode: 200, body: JSON.stringify({ message: 'Erfolgreich angemeldet!' }) };
   }
 
-  // hCaptcha verifizieren
+  // hCaptcha
   if (!captchaToken) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Bitte bestätige, dass du kein Roboter bist.' }) };
   }
@@ -51,10 +80,7 @@ exports.handler = async (event) => {
 
   // Input-Validierung
   if (!email || !EMAIL_REGEX.test(email)) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Bitte gib eine gültige E-Mail-Adresse ein.' }),
-    };
+    return { statusCode: 400, body: JSON.stringify({ error: 'Bitte gib eine gültige E-Mail-Adresse ein.' }) };
   }
   if (email.length > 254) {
     return { statusCode: 400, body: JSON.stringify({ error: 'E-Mail-Adresse zu lang.' }) };
@@ -66,7 +92,7 @@ exports.handler = async (event) => {
   const normalizedEmail = email.toLowerCase().trim();
 
   try {
-    // Rate Limiting: max 3 Anmeldungen pro IP in 10 Minuten
+    // Rate Limiting
     const ip = event.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
     const recentSnap = await db.collection('subscribe_attempts')
@@ -75,44 +101,42 @@ exports.handler = async (event) => {
       .get();
 
     if (recentSnap.size >= 3) {
-      return {
-        statusCode: 429,
-        body: JSON.stringify({ error: 'Zu viele Versuche. Bitte warte kurz und versuche es erneut.' }),
-      };
+      return { statusCode: 429, body: JSON.stringify({ error: 'Zu viele Versuche. Bitte warte kurz.' }) };
     }
-
-    // Versuch loggen
     await db.collection('subscribe_attempts').add({ ip, at: new Date() });
 
-    // Duplikat-Check
+    // Bereits aktiv angemeldet?
     const existing = await db.collection('subscribers')
       .where('email', '==', normalizedEmail)
+      .where('active', '==', true)
       .get();
 
     if (!existing.empty) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: 'Du bist bereits angemeldet!' }),
-      };
+      return { statusCode: 200, body: JSON.stringify({ message: 'Du bist bereits angemeldet!' }) };
     }
 
-    // Abonnent speichern
-    await db.collection('subscribers').add({
+    // Bestätigungs-Token generieren
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    // Als pending speichern
+    await db.collection('pending_subscribers').doc(token).set({
       name: (name || '').trim(),
       email: normalizedEmail,
-      subscribed_at: admin.firestore.FieldValue.serverTimestamp(),
-      active: true,
+      token,
+      expires_at: expiresAt,
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
     });
+
+    // Bestätigungs-E-Mail senden
+    await sendConfirmationEmail(normalizedEmail, name, token);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Erfolgreich angemeldet!' }),
+      body: JSON.stringify({ message: 'Fast geschafft!' }),
     };
   } catch (err) {
     console.error('Subscribe error:', err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Serverfehler. Bitte versuche es später nochmal.' }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: 'Serverfehler. Bitte versuche es später nochmal.' }) };
   }
 };
