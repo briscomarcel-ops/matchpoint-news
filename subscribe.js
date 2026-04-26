@@ -127,12 +127,17 @@ exports.handler = async (event) => {
     });
     console.log('Step 4: Pending subscriber saved');
 
-    await sendConfirmationEmail(normalizedEmail, name, token);
-    console.log('Step 5: Email sent');
+    let emailResult = 'not called';
+    try {
+      await sendConfirmationEmail(normalizedEmail, name, token);
+      emailResult = 'success';
+    } catch (emailErr) {
+      emailResult = emailErr.message;
+    }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Fast geschafft!' }),
+      body: JSON.stringify({ message: 'Fast geschafft!', debug_email: emailResult }),
     };
   } catch (err) {
     console.error('Subscribe error:', err);
