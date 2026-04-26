@@ -137,7 +137,7 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Fast geschafft!', debug_email: emailResult }),
+      body: JSON.stringify({ message: 'Fast geschafft!' }),
     };
   } catch (err) {
     console.error('Subscribe error:', err);
