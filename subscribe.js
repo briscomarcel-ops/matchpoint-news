@@ -94,7 +94,7 @@ exports.handler = async (event) => {
   const normalizedEmail = email.toLowerCase().trim();
 
   try {
-    // Rate Limiting
+    console.log('Step 1: Rate limiting check');
     const ip = event.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
     const recentSnap = await db.collection('subscribe_attempts')
@@ -106,8 +106,8 @@ exports.handler = async (event) => {
       return { statusCode: 429, body: JSON.stringify({ error: 'Zu viele Versuche. Bitte warte kurz.' }) };
     }
     await db.collection('subscribe_attempts').add({ ip, at: new Date() });
+    console.log('Step 2: Rate limit passed');
 
-    // Bereits aktiv angemeldet?
     const existing = await db.collection('subscribers')
       .where('email', '==', normalizedEmail)
       .where('active', '==', true)
@@ -116,12 +116,11 @@ exports.handler = async (event) => {
     if (!existing.empty) {
       return { statusCode: 200, body: JSON.stringify({ message: 'Du bist bereits angemeldet!' }) };
     }
+    console.log('Step 3: Not already subscribed');
 
-    // Bestätigungs-Token generieren
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    // Als pending speichern
     await db.collection('pending_subscribers').doc(token).set({
       name: (name || '').trim(),
       email: normalizedEmail,
@@ -129,9 +128,10 @@ exports.handler = async (event) => {
       expires_at: expiresAt,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
     });
+    console.log('Step 4: Pending subscriber saved');
 
-    // Bestätigungs-E-Mail senden
     await sendConfirmationEmail(normalizedEmail, name, token);
+    console.log('Step 5: Email sent');
 
     return {
       statusCode: 200,
