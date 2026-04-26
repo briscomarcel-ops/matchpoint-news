@@ -360,7 +360,9 @@
           if (res.ok) {
             form.style.display = 'none';
             msg.className = 'success';
-            msg.textContent = '🎾 Willkommen an Bord! Morgen früh liegt dein erster Newsletter im Posteingang.';
+            msg.textContent = data.message === 'Du bist bereits angemeldet!'
+              ? '📬 Diese E-Mail-Adresse ist bereits angemeldet. Schau in deinen Posteingang!'
+              : '🎾 Willkommen an Bord! Morgen früh liegt dein erster Newsletter im Posteingang.';
           } else {
             msg.className = 'error';
             msg.textContent = data.error || 'Etwas ist schiefgelaufen. Bitte versuche es nochmal.';
