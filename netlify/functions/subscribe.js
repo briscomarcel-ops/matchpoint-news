@@ -38,7 +38,7 @@ async function sendConfirmationEmail(email, name, token) {
         <a href="${confirmUrl}" style="display:inline-block;margin:1.5rem 0;padding:0.9rem 2rem;background:#1a472a;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;">
           Anmeldung bestätigen
         </a>
-        <p style="color:#888;font-size:0.85rem;">Der Link ist 24 Stunden gültig.<br/>Falls du dich nicht angemeldet hast, kannst du diese E-Mail ignorieren.</p>
+        <p style="color:#888;font-size:0.85rem;">Der Link ist 24 Stunden gültig.<br/>Falls du diese E-Mail nicht siehst, schau bitte auch in deinem <strong>Spam- oder Junk-Ordner</strong> nach.<br/>Falls du dich nicht angemeldet hast, kannst du diese E-Mail ignorieren.</p>
       </div>
     `,
   });
