@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const { Resend } = require('resend');
 
 if (!admin.apps.length) {
   const serviceAccount = JSON.parse(
@@ -41,6 +42,24 @@ exports.handler = async (event) => {
 
     // Pending-Eintrag löschen
     await docRef.delete();
+
+    // Welcome-Newsletter senden (letzte Ausgabe aus Firestore)
+    try {
+      const latestDoc = await db.collection('newsletter_latest').doc('current').get();
+      if (latestDoc.exists) {
+        const latest = latestDoc.data();
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        await resend.emails.send({
+          from: 'Matchpoint News <newsletter@matchpoint-news.cloud>',
+          to: data.email,
+          subject: `🎾 Willkommen! ${latest.subject}`,
+          html: latest.html,
+        });
+        console.log('Welcome newsletter sent to', data.email);
+      }
+    } catch (welcomeErr) {
+      console.error('Welcome newsletter error (non-fatal):', welcomeErr.message);
+    }
 
     return {
       statusCode: 200,
