@@ -38,6 +38,8 @@ exports.handler = async (event) => {
       email: data.email,
       subscribed_at: admin.firestore.FieldValue.serverTimestamp(),
       active: true,
+      consent_advertising: data.consent_advertising === true,
+      consent_version: data.consent_version || '',
     });
 
     // Pending-Eintrag löschen

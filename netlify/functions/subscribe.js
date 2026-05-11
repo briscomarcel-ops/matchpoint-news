@@ -61,7 +61,7 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'Ungültige Anfrage.' }) };
   }
 
-  const { name, email, website, captchaToken } = body;
+  const { name, email, website, captchaToken, consentAdvertising } = body;
 
   // Honeypot
   if (website) {
@@ -124,6 +124,8 @@ exports.handler = async (event) => {
       token,
       expires_at: expiresAt,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
+      consent_advertising: consentAdvertising === true,
+      consent_version: 'v1-2026-05-11',
     });
     console.log('Step 4: Pending subscriber saved');
 
