@@ -138,6 +138,37 @@
     #form-message.success { color: var(--green2); }
     #form-message.error   { color: #c0392b; }
 
+    /* LANGUAGE SELECTOR */
+    .lang-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .lang-selector label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.55rem 0.5rem;
+      border: 2px solid #e0e8e0;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      color: var(--muted);
+    }
+    .lang-selector input[type="radio"] { display: none; }
+    .lang-selector input[type="radio"]:checked + span {
+      color: var(--green);
+    }
+    .lang-selector label:has(input:checked) {
+      border-color: var(--green2);
+      background: #f0f8f0;
+      color: var(--green);
+    }
+
     /* FEATURES */
     .features {
       background: var(--light);
@@ -258,9 +289,19 @@
     <div class="form-wrap">
       <h2>Jetzt kostenlos anmelden</h2>
       <form id="subscribe-form">
-        <input type="text" name="name" placeholder="Dein Name" required />
-        <input type="email" name="email" placeholder="Deine E-Mail-Adresse" required />
+        <input type="text" name="name" placeholder="Dein Name / Your name" required />
+        <input type="email" name="email" placeholder="E-Mail-Adresse" required />
         <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
+        <div class="lang-selector">
+          <label>
+            <input type="radio" name="language" value="de" checked />
+            <span>🇩🇪 Deutsch</span>
+          </label>
+          <label>
+            <input type="radio" name="language" value="en" />
+            <span>🇬🇧 English</span>
+          </label>
+        </div>
         <label style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:0.75rem;font-size:0.8rem;color:#555;cursor:pointer;text-align:left;">
           <input type="checkbox" name="consent_advertising" style="margin-top:3px;min-width:15px;" />
           <span>Ich bin einverstanden, dass Matchpoint News mir auch ausgewählte Angebote und Empfehlungen rund um Tennis, Sport und Gesundheit per E-Mail senden darf – z. B. Ausrüstung, Kurse oder digitale Inhalte (optional).</span>
@@ -319,9 +360,19 @@
     <div class="form-wrap">
       <h2>Jetzt anmelden</h2>
       <form id="subscribe-form-2">
-        <input type="text" name="name" placeholder="Dein Name" required />
-        <input type="email" name="email" placeholder="Deine E-Mail-Adresse" required />
+        <input type="text" name="name" placeholder="Dein Name / Your name" required />
+        <input type="email" name="email" placeholder="E-Mail-Adresse" required />
         <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
+        <div class="lang-selector">
+          <label>
+            <input type="radio" name="language" value="de" checked />
+            <span>🇩🇪 Deutsch</span>
+          </label>
+          <label>
+            <input type="radio" name="language" value="en" />
+            <span>🇬🇧 English</span>
+          </label>
+        </div>
         <label style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:0.75rem;font-size:0.8rem;color:#aaa;cursor:pointer;text-align:left;">
           <input type="checkbox" name="consent_advertising" style="margin-top:3px;min-width:15px;" />
           <span>Ich bin einverstanden, dass Matchpoint News mir auch ausgewählte Angebote und Empfehlungen rund um Tennis, Sport und Gesundheit per E-Mail senden darf – z. B. Ausrüstung, Kurse oder digitale Inhalte (optional).</span>
@@ -347,42 +398,51 @@
         e.preventDefault();
         const name = form.name.value.trim();
         const email = form.email.value.trim();
+        const language = form.querySelector('[name="language"]:checked')?.value || 'de';
         const captchaToken = form.querySelector('[name="h-captcha-response"]')?.value || '';
         const consentAdvertising = form.querySelector('[name="consent_advertising"]')?.checked === true;
         const btn = form.querySelector('button');
+        const isEn = language === 'en';
 
         if (!captchaToken) {
           msg.className = 'error';
-          msg.textContent = 'Bitte bestätige, dass du kein Roboter bist.';
+          msg.textContent = isEn
+            ? 'Please confirm you are not a robot.'
+            : 'Bitte bestätige, dass du kein Roboter bist.';
           return;
         }
 
-        btn.textContent = 'Wird angemeldet...';
+        btn.textContent = isEn ? 'Signing up...' : 'Wird angemeldet...';
         btn.disabled = true;
         try {
           const res = await fetch('/.netlify/functions/subscribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, captchaToken, consentAdvertising }),
+            body: JSON.stringify({ name, email, language, captchaToken, consentAdvertising }),
           });
           const data = await res.json();
           if (res.ok) {
             form.style.display = 'none';
             msg.className = 'success';
-            msg.textContent = data.message === 'Du bist bereits angemeldet!'
-              ? '📬 Diese E-Mail-Adresse ist bereits angemeldet. Schau in deinen Posteingang!'
+            const alreadyMsg = isEn
+              ? '📬 This email address is already subscribed. Check your inbox!'
+              : '📬 Diese E-Mail-Adresse ist bereits angemeldet. Schau in deinen Posteingang!';
+            const confirmMsg = isEn
+              ? '📧 Almost there! We sent you a confirmation email. Please click the link inside. If you don\'t see it, check your spam folder.'
               : '📧 Fast geschafft! Wir haben dir eine Bestätigungs-E-Mail geschickt. Bitte klicke den Link darin. Falls du keine E-Mail siehst, schau bitte auch im Spam-Ordner nach.';
+            msg.textContent = (data.message === 'Du bist bereits angemeldet!' || data.message === 'already_subscribed')
+              ? alreadyMsg : confirmMsg;
           } else {
             msg.className = 'error';
-            msg.textContent = data.error || 'Etwas ist schiefgelaufen. Bitte versuche es nochmal.';
-            btn.textContent = 'Anmelden';
+            msg.textContent = data.error || (isEn ? 'Something went wrong. Please try again.' : 'Etwas ist schiefgelaufen. Bitte versuche es nochmal.');
+            btn.textContent = isEn ? 'Sign up' : 'Anmelden';
             btn.disabled = false;
             if (window.hcaptcha) window.hcaptcha.reset();
           }
         } catch {
           msg.className = 'error';
-          msg.textContent = 'Netzwerkfehler. Bitte versuche es später nochmal.';
-          btn.textContent = 'Anmelden';
+          msg.textContent = isEn ? 'Network error. Please try again later.' : 'Netzwerkfehler. Bitte versuche es später nochmal.';
+          btn.textContent = isEn ? 'Sign up' : 'Anmelden';
           btn.disabled = false;
           if (window.hcaptcha) window.hcaptcha.reset();
         }
