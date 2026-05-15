@@ -33,7 +33,7 @@
       padding: 1rem 2rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      justify-content: space-between;
     }
     nav .logo {
       color: var(--yellow);
@@ -42,6 +42,26 @@
       letter-spacing: -0.5px;
     }
     nav .logo span { color: var(--white); }
+
+    /* LANGUAGE SWITCH */
+    .lang-switch {
+      display: flex;
+      gap: 0.25rem;
+    }
+    .lang-btn {
+      background: transparent;
+      border: 2px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: inherit;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lang-btn:hover { border-color: rgba(255,255,255,0.6); color: var(--white); }
+    .lang-btn.active { background: var(--yellow); border-color: var(--yellow); color: var(--green); }
 
     /* HERO */
     .hero {
@@ -96,7 +116,8 @@
       color: var(--text);
       text-align: center;
     }
-    .form-wrap input {
+    .form-wrap input[type="text"],
+    .form-wrap input[type="email"] {
       width: 100%;
       padding: 0.8rem 1rem;
       border: 2px solid #e0e8e0;
@@ -107,8 +128,9 @@
       transition: border-color 0.2s;
       outline: none;
     }
-    .form-wrap input:focus { border-color: var(--green2); }
-    .form-wrap button {
+    .form-wrap input[type="text"]:focus,
+    .form-wrap input[type="email"]:focus { border-color: var(--green2); }
+    .form-wrap button[type="submit"] {
       width: 100%;
       padding: 0.9rem;
       background: var(--green);
@@ -121,24 +143,24 @@
       transition: background 0.2s, transform 0.1s;
       font-family: inherit;
     }
-    .form-wrap button:hover { background: var(--green2); }
-    .form-wrap button:active { transform: scale(0.98); }
+    .form-wrap button[type="submit"]:hover { background: var(--green2); }
+    .form-wrap button[type="submit"]:active { transform: scale(0.98); }
     .form-wrap .fine {
       font-size: 0.75rem;
       color: var(--muted);
       text-align: center;
       margin-top: 0.75rem;
     }
-    #form-message {
+    #form-message, #form-message-2 {
       text-align: center;
       margin-top: 1rem;
       font-weight: 600;
       font-size: 0.95rem;
     }
-    #form-message.success { color: var(--green2); }
-    #form-message.error   { color: #c0392b; }
+    #form-message.success, #form-message-2.success { color: var(--green2); }
+    #form-message.error,   #form-message-2.error   { color: #c0392b; }
 
-    /* LANGUAGE SELECTOR */
+    /* LANGUAGE SELECTOR IN FORM */
     .lang-selector {
       display: flex;
       gap: 0.5rem;
@@ -160,9 +182,6 @@
       color: var(--muted);
     }
     .lang-selector input[type="radio"] { display: none; }
-    .lang-selector input[type="radio"]:checked + span {
-      color: var(--green);
-    }
     .lang-selector label:has(input:checked) {
       border-color: var(--green2);
       background: #f0f8f0;
@@ -278,19 +297,23 @@
   <!-- NAV -->
   <nav>
     <div class="logo">🎾 Matchpoint<span> News</span></div>
+    <div class="lang-switch">
+      <button class="lang-btn active" id="btn-de" onclick="setLang('de')">🇩🇪 DE</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
   </nav>
 
   <!-- HERO -->
   <section class="hero">
-    <div class="badge">Kostenlos &amp; täglich</div>
-    <h1>Tennis. Täglich. <em>Auf den Punkt.</em></h1>
-    <p>Ergebnisse, Rankings, Turnier-Highlights und Hintergrundgeschichten – jeden Morgen frisch in deinem Posteingang.</p>
+    <div class="badge" data-i18n="badge">Kostenlos &amp; täglich</div>
+    <h1 data-i18n="hero_h1">Tennis. Täglich. <em>Auf den Punkt.</em></h1>
+    <p data-i18n="hero_p">Ergebnisse, Rankings, Turnier-Highlights und Hintergrundgeschichten – jeden Morgen frisch in deinem Posteingang.</p>
 
     <div class="form-wrap">
-      <h2>Jetzt kostenlos anmelden</h2>
+      <h2 data-i18n="form_title">Jetzt kostenlos anmelden</h2>
       <form id="subscribe-form">
-        <input type="text" name="name" placeholder="Dein Name / Your name" required />
-        <input type="email" name="email" placeholder="E-Mail-Adresse" required />
+        <input type="text" name="name" data-i18n-placeholder="name_placeholder" placeholder="Dein Name" required />
+        <input type="email" name="email" placeholder="E-Mail" required />
         <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
         <div class="lang-selector">
           <label>
@@ -304,11 +327,11 @@
         </div>
         <label style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:0.75rem;font-size:0.8rem;color:#555;cursor:pointer;text-align:left;">
           <input type="checkbox" name="consent_advertising" style="margin-top:3px;min-width:15px;" />
-          <span>Ich bin einverstanden, dass Matchpoint News mir auch ausgewählte Angebote und Empfehlungen rund um Tennis, Sport und Gesundheit per E-Mail senden darf – z. B. Ausrüstung, Kurse oder digitale Inhalte (optional).</span>
+          <span data-i18n="consent_text">Ich bin einverstanden, dass Matchpoint News mir auch ausgewählte Angebote und Empfehlungen rund um Tennis, Sport und Gesundheit per E-Mail senden darf – z. B. Ausrüstung, Kurse oder digitale Inhalte (optional).</span>
         </label>
         <div class="h-captcha" data-sitekey="4ccef0e0-e124-4b2c-a60e-d3f2b55a1d28" style="margin-bottom:0.75rem"></div>
-        <button type="submit">Anmelden – kostenlos &amp; jederzeit kündbar</button>
-        <p class="fine">Kein Spam. Jederzeit abmeldbar.</p>
+        <button type="submit" data-i18n="form_btn">Anmelden – kostenlos &amp; jederzeit kündbar</button>
+        <p class="fine" data-i18n="form_fine">Kein Spam. Jederzeit abmeldbar.</p>
       </form>
       <div id="form-message"></div>
     </div>
@@ -316,37 +339,37 @@
 
   <!-- FEATURES -->
   <section class="features">
-    <h2>Was dich jeden Morgen erwartet</h2>
-    <p class="sub">Alles was du als Tennisfan wissen musst – in 5 Minuten gelesen.</p>
+    <h2 data-i18n="features_h2">Was dich jeden Morgen erwartet</h2>
+    <p class="sub" data-i18n="features_sub">Alles was du als Tennisfan wissen musst – in 5 Minuten gelesen.</p>
     <div class="cards">
       <div class="card">
         <span class="icon">🏆</span>
-        <h3>Gestrige Ergebnisse</h3>
-        <p>Alle wichtigen Scores von ATP und WTA – mit Kontext zu Überraschungen, Comebacks und Upsets.</p>
+        <h3 data-i18n="card1_h3">Gestrige Ergebnisse</h3>
+        <p data-i18n="card1_p">Alle wichtigen Scores von ATP und WTA – mit Kontext zu Überraschungen, Comebacks und Upsets.</p>
       </div>
       <div class="card">
         <span class="icon">📅</span>
-        <h3>Heutige Matches</h3>
-        <p>Welche Spiele laufen heute? Was steht auf dem Spiel? Worauf du achten solltest.</p>
+        <h3 data-i18n="card2_h3">Heutige Matches</h3>
+        <p data-i18n="card2_p">Welche Spiele laufen heute? Was steht auf dem Spiel? Worauf du achten solltest.</p>
       </div>
       <div class="card">
         <span class="icon">📊</span>
-        <h3>Ranglisten & Punkte</h3>
-        <p>Wer steigt auf, wer fällt? Aktuelle Top 10 von ATP und WTA mit Bewegungen und Hintergründen.</p>
+        <h3 data-i18n="card3_h3">Ranglisten &amp; Punkte</h3>
+        <p data-i18n="card3_p">Wer steigt auf, wer fällt? Aktuelle Top 10 von ATP und WTA mit Bewegungen und Hintergründen.</p>
       </div>
       <div class="card">
         <span class="icon">🎙️</span>
-        <h3>Turnier-Spotlight</h3>
-        <p>Geschichte, Untergrund, Titelverteidiger – du verstehst nicht nur was passiert, sondern auch warum es wichtig ist.</p>
+        <h3 data-i18n="card4_h3">Turnier-Spotlight</h3>
+        <p data-i18n="card4_p">Geschichte, Untergrund, Titelverteidiger – du verstehst nicht nur was passiert, sondern auch warum es wichtig ist.</p>
       </div>
     </div>
   </section>
 
   <!-- EXAMPLE -->
   <section class="example">
-    <h2>So klingt Matchpoint News</h2>
-    <p class="sub">Ein Auszug aus dem Newsletter vom 26. April 2026</p>
-    <div class="preview">
+    <h2 data-i18n="example_h2">So klingt Matchpoint News</h2>
+    <p class="sub" data-i18n="example_sub">Ein Auszug aus dem Newsletter vom 26. April 2026</p>
+    <div class="preview" data-i18n="preview_text">
       <p><strong>Madrid brennt – und wie!</strong> Das Mutua Madrid Open liefert täglich neue Geschichten. Gestern sorgte Iga Świątek für den Schockmoment der Woche: Die viermalige Roland-Garros-Siegerin musste ihr Match gegen Ann Li verletzungsbedingt aufgeben – ein Rückschlag mit Folgen für die French-Open-Vorbereitung.</p>
       <br/>
       <p>Auf der ATP-Seite marschieren die Favoriten: <strong>Zverev</strong> (Titelverteidiger 2021 &amp; 2024) zieht trotz verlorenem zweiten Satz durch, <strong>Casper Ruud</strong> – dreimal im Roland-Garros-Finale – macht kurzen Prozess mit einem 6-0 6-1 Doppel-Bagel. Und <strong>Jannik Sinner</strong> steht heute auf dem Platz...</p>
@@ -355,13 +378,13 @@
 
   <!-- CTA BOTTOM -->
   <section class="cta-bottom">
-    <h2>Bereit für deinen Matchpoint?</h2>
-    <p>Täglich. Kostenlos. Kündbar wann immer du willst.</p>
+    <h2 data-i18n="cta_h2">Bereit für deinen Matchpoint?</h2>
+    <p data-i18n="cta_p">Täglich. Kostenlos. Kündbar wann immer du willst.</p>
     <div class="form-wrap">
-      <h2>Jetzt anmelden</h2>
+      <h2 data-i18n="form2_title">Jetzt anmelden</h2>
       <form id="subscribe-form-2">
-        <input type="text" name="name" placeholder="Dein Name / Your name" required />
-        <input type="email" name="email" placeholder="E-Mail-Adresse" required />
+        <input type="text" name="name" data-i18n-placeholder="name_placeholder" placeholder="Dein Name" required />
+        <input type="email" name="email" placeholder="E-Mail" required />
         <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
         <div class="lang-selector">
           <label>
@@ -375,11 +398,11 @@
         </div>
         <label style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:0.75rem;font-size:0.8rem;color:#aaa;cursor:pointer;text-align:left;">
           <input type="checkbox" name="consent_advertising" style="margin-top:3px;min-width:15px;" />
-          <span>Ich bin einverstanden, dass Matchpoint News mir auch ausgewählte Angebote und Empfehlungen rund um Tennis, Sport und Gesundheit per E-Mail senden darf – z. B. Ausrüstung, Kurse oder digitale Inhalte (optional).</span>
+          <span data-i18n="consent_text">Ich bin einverstanden, dass Matchpoint News mir auch ausgewählte Angebote und Empfehlungen rund um Tennis, Sport und Gesundheit per E-Mail senden darf – z. B. Ausrüstung, Kurse oder digitale Inhalte (optional).</span>
         </label>
         <div class="h-captcha" data-sitekey="4ccef0e0-e124-4b2c-a60e-d3f2b55a1d28" style="margin-bottom:0.75rem"></div>
-        <button type="submit">Jetzt kostenlos anmelden</button>
-        <p class="fine" style="color:#aaa;">Kein Spam. Jederzeit abmeldbar.</p>
+        <button type="submit" data-i18n="form2_btn">Jetzt kostenlos anmelden</button>
+        <p class="fine" data-i18n="form_fine" style="color:#aaa;">Kein Spam. Jederzeit abmeldbar.</p>
       </form>
       <div id="form-message-2"></div>
     </div>
@@ -391,6 +414,106 @@
   </footer>
 
   <script>
+    // ── Translations ──────────────────────────────────────────────────────────
+    const t = {
+      de: {
+        badge:        'Kostenlos &amp; täglich',
+        hero_h1:      'Tennis. Täglich. <em>Auf den Punkt.</em>',
+        hero_p:       'Ergebnisse, Rankings, Turnier-Highlights und Hintergrundgeschichten – jeden Morgen frisch in deinem Posteingang.',
+        form_title:   'Jetzt kostenlos anmelden',
+        name_placeholder: 'Dein Name',
+        form_btn:     'Anmelden – kostenlos &amp; jederzeit kündbar',
+        form_fine:    'Kein Spam. Jederzeit abmeldbar.',
+        consent_text: 'Ich bin einverstanden, dass Matchpoint News mir auch ausgewählte Angebote und Empfehlungen rund um Tennis, Sport und Gesundheit per E-Mail senden darf – z. B. Ausrüstung, Kurse oder digitale Inhalte (optional).',
+        features_h2:  'Was dich jeden Morgen erwartet',
+        features_sub: 'Alles was du als Tennisfan wissen musst – in 5 Minuten gelesen.',
+        card1_h3: 'Gestrige Ergebnisse',
+        card1_p:  'Alle wichtigen Scores von ATP und WTA – mit Kontext zu Überraschungen, Comebacks und Upsets.',
+        card2_h3: 'Heutige Matches',
+        card2_p:  'Welche Spiele laufen heute? Was steht auf dem Spiel? Worauf du achten solltest.',
+        card3_h3: 'Ranglisten &amp; Punkte',
+        card3_p:  'Wer steigt auf, wer fällt? Aktuelle Top 10 von ATP und WTA mit Bewegungen und Hintergründen.',
+        card4_h3: 'Turnier-Spotlight',
+        card4_p:  'Geschichte, Untergrund, Titelverteidiger – du verstehst nicht nur was passiert, sondern auch warum es wichtig ist.',
+        example_h2:  'So klingt Matchpoint News',
+        example_sub: 'Ein Auszug aus dem Newsletter vom 26. April 2026',
+        preview_text: '<p><strong>Madrid brennt – und wie!</strong> Das Mutua Madrid Open liefert täglich neue Geschichten. Gestern sorgte Iga Świątek für den Schockmoment der Woche: Die viermalige Roland-Garros-Siegerin musste ihr Match gegen Ann Li verletzungsbedingt aufgeben – ein Rückschlag mit Folgen für die French-Open-Vorbereitung.</p><br/><p>Auf der ATP-Seite marschieren die Favoriten: <strong>Zverev</strong> (Titelverteidiger 2021 &amp; 2024) zieht trotz verlorenem zweiten Satz durch, <strong>Casper Ruud</strong> – dreimal im Roland-Garros-Finale – macht kurzen Prozess mit einem 6-0 6-1 Doppel-Bagel. Und <strong>Jannik Sinner</strong> steht heute auf dem Platz...</p>',
+        cta_h2:      'Bereit für deinen Matchpoint?',
+        cta_p:       'Täglich. Kostenlos. Kündbar wann immer du willst.',
+        form2_title: 'Jetzt anmelden',
+        form2_btn:   'Jetzt kostenlos anmelden',
+      },
+      en: {
+        badge:        'Free &amp; daily',
+        hero_h1:      'Tennis. Daily. <em>To the point.</em>',
+        hero_p:       'Results, rankings, tournament highlights and background stories – fresh in your inbox every morning.',
+        form_title:   'Subscribe for free',
+        name_placeholder: 'Your name',
+        form_btn:     'Subscribe – free &amp; cancel anytime',
+        form_fine:    'No spam. Unsubscribe anytime.',
+        consent_text: 'I agree that Matchpoint News may also send me selected offers and recommendations related to tennis, sport and health by email – e.g. equipment, courses or digital content (optional).',
+        features_h2:  'What to expect every morning',
+        features_sub: 'Everything a tennis fan needs to know – a 5-minute read.',
+        card1_h3: 'Yesterday\'s Results',
+        card1_p:  'All the key ATP and WTA scores – with context on upsets, comebacks and surprises.',
+        card2_h3: 'Today\'s Matches',
+        card2_p:  'Which matches are on today? What\'s at stake? What to watch out for.',
+        card3_h3: 'Rankings &amp; Points',
+        card3_p:  'Who\'s climbing, who\'s falling? Current ATP and WTA top 10 with moves and background.',
+        card4_h3: 'Tournament Spotlight',
+        card4_p:  'History, surface, defending champion – you\'ll understand not just what happens, but why it matters.',
+        example_h2:  'This is what Matchpoint News sounds like',
+        example_sub: 'An excerpt from the newsletter of 26 April 2026',
+        preview_text: '<p><strong>Madrid is on fire.</strong> The Mutua Madrid Open keeps delivering. Yesterday Iga Świątek provided the week\'s shock moment: the four-time Roland Garros champion retired against Ann Li through injury – a serious blow to her French Open preparation.</p><br/><p>On the ATP side the favourites are marching: <strong>Zverev</strong> (champion in 2021 &amp; 2024) advances despite dropping the second set, <strong>Casper Ruud</strong> – three Roland Garros finals to his name – dispatches his opponent 6-0 6-1. And <strong>Jannik Sinner</strong> steps on court today...</p>',
+        cta_h2:      'Ready for your Matchpoint?',
+        cta_p:       'Daily. Free. Cancel whenever you want.',
+        form2_title: 'Subscribe now',
+        form2_btn:   'Subscribe for free',
+      }
+    };
+
+    let currentLang = 'de';
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+
+      // Update all translated text elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (t[lang][key] !== undefined) el.innerHTML = t[lang][key];
+      });
+
+      // Update placeholder attributes
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        if (t[lang][key] !== undefined) el.placeholder = t[lang][key];
+      });
+
+      // Sync newsletter language radio buttons to page language
+      document.querySelectorAll('[name="language"]').forEach(r => {
+        r.checked = r.value === lang;
+      });
+
+      // Update nav toggle buttons
+      document.getElementById('btn-de').classList.toggle('active', lang === 'de');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+      localStorage.setItem('mp_lang', lang);
+    }
+
+    // Auto-detect language on first visit
+    (function () {
+      const saved = localStorage.getItem('mp_lang');
+      if (saved === 'en') {
+        setLang('en');
+      } else if (!saved) {
+        const browser = navigator.language || '';
+        if (!browser.startsWith('de')) setLang('en');
+      }
+    })();
+
+    // ── Form submit ───────────────────────────────────────────────────────────
     async function handleSubmit(formId, messageId) {
       const form = document.getElementById(formId);
       const msg = document.getElementById(messageId);
@@ -401,7 +524,7 @@
         const language = form.querySelector('[name="language"]:checked')?.value || 'de';
         const captchaToken = form.querySelector('[name="h-captcha-response"]')?.value || '';
         const consentAdvertising = form.querySelector('[name="consent_advertising"]')?.checked === true;
-        const btn = form.querySelector('button');
+        const btn = form.querySelector('button[type="submit"]');
         const isEn = language === 'en';
 
         if (!captchaToken) {
