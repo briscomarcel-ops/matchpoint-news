@@ -32,10 +32,13 @@ exports.handler = async (event) => {
       return { statusCode: 410, body: JSON.stringify({ error: 'Dieser Link ist abgelaufen. Bitte melde dich erneut an.' }) };
     }
 
+    const lang = data.language === 'en' ? 'en' : 'de';
+
     // Abonnent aktivieren
     await db.collection('subscribers').add({
       name: data.name,
       email: data.email,
+      language: lang,
       subscribed_at: admin.firestore.FieldValue.serverTimestamp(),
       active: true,
       consent_advertising: data.consent_advertising === true,
@@ -45,19 +48,22 @@ exports.handler = async (event) => {
     // Pending-Eintrag löschen
     await docRef.delete();
 
-    // Welcome-Newsletter senden (letzte Ausgabe aus Firestore)
+    // Welcome-Newsletter senden (letzte Ausgabe in der richtigen Sprache)
     try {
-      const latestDoc = await db.collection('newsletter_latest').doc('current').get();
+      const latestDoc = await db.collection('newsletter_latest').doc(`current_${lang}`).get();
       if (latestDoc.exists) {
         const latest = latestDoc.data();
         const resend = new Resend(process.env.RESEND_API_KEY);
+        const welcomeSubject = lang === 'en'
+          ? `🎾 Welcome! ${latest.subject}`
+          : `🎾 Willkommen! ${latest.subject}`;
         await resend.emails.send({
           from: 'Matchpoint News <newsletter@matchpoint-news.cloud>',
           to: data.email,
-          subject: `🎾 Willkommen! ${latest.subject}`,
+          subject: welcomeSubject,
           html: latest.html,
         });
-        console.log('Welcome newsletter sent to', data.email);
+        console.log('Welcome newsletter sent to', data.email, `(${lang})`);
       }
     } catch (welcomeErr) {
       console.error('Welcome newsletter error (non-fatal):', welcomeErr.message);

@@ -23,14 +23,27 @@ async function verifyCaptcha(token) {
   return data.success === true;
 }
 
-async function sendConfirmationEmail(email, name, token) {
+async function sendConfirmationEmail(email, name, token, language = 'de') {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const confirmUrl = `https://matchpoint-news.netlify.app/confirm.html?token=${token}`;
+  const isEn = language === 'en';
   const { data, error } = await resend.emails.send({
     from: 'Matchpoint News <newsletter@matchpoint-news.cloud>',
     to: email,
-    subject: '🎾 Bitte bestätige deine Anmeldung – Matchpoint News',
-    html: `
+    subject: isEn
+      ? '🎾 Please confirm your subscription – Matchpoint News'
+      : '🎾 Bitte bestätige deine Anmeldung – Matchpoint News',
+    html: isEn ? `
+      <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:2rem;">
+        <h2 style="color:#1a472a;">Almost there, ${name || 'tennis fan'}!</h2>
+        <p>You signed up for the <strong>Matchpoint News</strong> newsletter.</p>
+        <p>Click the button below to confirm your subscription:</p>
+        <a href="${confirmUrl}" style="display:inline-block;margin:1.5rem 0;padding:0.9rem 2rem;background:#1a472a;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;">
+          Confirm subscription
+        </a>
+        <p style="color:#888;font-size:0.85rem;">This link is valid for 24 hours.<br/>If you don't see this email, check your <strong>spam or junk folder</strong>.<br/>If you didn't sign up, you can safely ignore this email.</p>
+      </div>
+    ` : `
       <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:2rem;">
         <h2 style="color:#1a472a;">Fast geschafft, ${name || 'Tennis-Fan'}!</h2>
         <p>Du hast dich für den <strong>Matchpoint News</strong> Newsletter angemeldet.</p>
@@ -61,7 +74,8 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'Ungültige Anfrage.' }) };
   }
 
-  const { name, email, website, captchaToken, consentAdvertising } = body;
+  const { name, email, website, captchaToken, consentAdvertising, language } = body;
+  const lang = (language === 'en') ? 'en' : 'de';
 
   // Honeypot
   if (website) {
@@ -122,6 +136,7 @@ exports.handler = async (event) => {
       name: (name || '').trim(),
       email: normalizedEmail,
       token,
+      language: lang,
       expires_at: expiresAt,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
       consent_advertising: consentAdvertising === true,
@@ -131,7 +146,7 @@ exports.handler = async (event) => {
 
     let emailResult = 'not called';
     try {
-      await sendConfirmationEmail(normalizedEmail, name, token);
+      await sendConfirmationEmail(normalizedEmail, name, token, lang);
       emailResult = 'success';
     } catch (emailErr) {
       emailResult = emailErr.message;
